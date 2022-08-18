@@ -19,7 +19,7 @@ class LoginService {
 
     const { error, value } = schema.validate(data);
 
-    if (error) throwCustomError('validationError', error.message);
+    if (error) throwCustomError('validationError', 'All fields must be filled');
 
     return value;
   }
@@ -28,13 +28,13 @@ class LoginService {
     const { email, password } = user;
     const returnedUser = await Users.findOne({ where: { email }, raw: true });
     if (returnedUser === null) {
-      return throwCustomError('notFoundError', 'Incorrect email or password');
+      return throwCustomError('unauthorizedError', 'Incorrect email or password');
     }
 
     if (returnedUser !== null) {
       const passValidation = bcrypt.compareSync(password, returnedUser.password);
       if (passValidation === null) {
-        return throwCustomError('unauthorizedError', 'password incorrect');
+        return throwCustomError('unauthorizedError', 'Incorrect email or password');
       }
     }
   }
