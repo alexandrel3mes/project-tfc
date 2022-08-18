@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import 'dotenv';
 import { Options } from 'sequelize';
 
 const config: Options = {
