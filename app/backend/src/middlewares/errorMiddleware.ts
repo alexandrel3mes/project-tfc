@@ -19,4 +19,4 @@ const errorMiddleware = (
   return res.status(status).json({ message });
 };
 
-export = errorMiddleware;
+export default errorMiddleware;

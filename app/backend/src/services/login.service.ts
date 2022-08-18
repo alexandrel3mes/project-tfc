@@ -2,7 +2,7 @@ import 'dotenv';
 import Joi = require('joi');
 import jwt = require('jsonwebtoken');
 import bcrypt = require('bcryptjs');
-import throwCustomError = require('../utils/throwCustomError');
+import throwCustomError from '../utils/throwCustomError';
 import Users from '../database/models/user';
 
 export type objectPayload = {
@@ -11,7 +11,7 @@ export type objectPayload = {
 };
 
 class LoginService {
-  static validateBody(data: unknown): void {
+  static validateBody(data: unknown): objectPayload {
     const schema = Joi.object({
       email: Joi.string().email().required(),
       password: Joi.string().min(6).required(),
@@ -19,27 +19,29 @@ class LoginService {
 
     const { error, value } = schema.validate(data);
 
-    if (error) throw error;
+    if (error) throwCustomError('validationError', error.message);
 
     return value;
   }
 
   static async validateUserAndPassword(user: objectPayload): Promise<void> {
-    const returnedUser = await Users.findOne({ where: { email: user.email } });
-    console.log(returnedUser);
-    if (!returnedUser) {
-      throwCustomError('notFoundError', 'user not found');
+    const { email, password } = user;
+    const returnedUser = await Users.findOne({ where: { email }, raw: true });
+    if (returnedUser === null) {
+      return throwCustomError('notFoundError', 'Incorrect email or password');
     }
 
-    const passValidation = bcrypt.compareSync(user.password, returnedUser.password);
-    if (!passValidation) {
-      throwCustomError('unauthorizedError', 'password incorrect');
+    if (returnedUser !== null) {
+      const passValidation = bcrypt.compareSync(password, returnedUser.password);
+      if (passValidation === null) {
+        return throwCustomError('unauthorizedError', 'password incorrect');
+      }
     }
   }
 
-  static login(user: objectPayload): string {
-    LoginService.validateBody(user);
-    LoginService.validateUserAndPassword(user);
+  static async login(user: objectPayload): Promise<string> {
+    const authBody = LoginService.validateBody(user);
+    await LoginService.validateUserAndPassword(authBody);
     const token = jwt.sign({ data: user }, process.env.JWT_SECRET || 'secret');
     return token;
   }

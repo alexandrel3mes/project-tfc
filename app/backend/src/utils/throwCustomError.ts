@@ -4,4 +4,4 @@ const throwCustomError = (name: string, message: string) => {
   throw error;
 };
 
-export = throwCustomError;
+export default throwCustomError;
