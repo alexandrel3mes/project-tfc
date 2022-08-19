@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import throwCustomError from '../utils/throwCustomError';
 import LoginService from '../services/login.service';
 
 export default class LoginController {
@@ -12,14 +11,10 @@ export default class LoginController {
   };
 
   public getRole = async (req: Request, res: Response) => {
-    const { authorization } = req.headers;
+    const { user } = req.body;
+    console.log(user);
 
-    if (authorization === null) {
-      throwCustomError('unauthorizedError', 'Token not found');
-    }
-    if (typeof authorization === 'string') {
-      const result = await LoginService.getRole(authorization);
-      res.status(StatusCodes.OK).json({ role: result });
-    }
+    const result = await LoginService.getRole(user);
+    res.status(StatusCodes.OK).json({ role: result });
   };
 }

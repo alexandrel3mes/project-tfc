@@ -51,14 +51,10 @@ class LoginService {
     return token;
   }
 
-  static async getRole(token: string): Promise<string> {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as IJWTVerify;
-    if (!decoded) {
-      throwCustomError('unauthorizedError', 'Invalid token');
-    }
-    console.log(decoded);
+  static async getRole(user: IJWTVerify): Promise<string> {
+    const { email } = user.data;
     const returnedUser = await Users
-      .findOne({ where: { email: decoded.data.email }, raw: true });
+      .findOne({ where: { email }, raw: true });
     if (returnedUser !== null) return returnedUser.role.toString();
     return throwCustomError('unauthorizedError', 'Invalid token');
   }
