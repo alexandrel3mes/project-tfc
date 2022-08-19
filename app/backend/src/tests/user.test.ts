@@ -25,12 +25,21 @@ const userPayload = {
   password: 'doaksdkasdkaed'
 }
 
+const userWithoutEmail = {
+  password: 'doaksdkasdkaed'
+}
+
+class validationError extends Error {
+  name = 'validationError'
+  code = 400
+}
+
 const tokenMock = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicGFzc3dvcmQiOiJzZWNyZXRfYWRtaW4ifSwiaWF0IjoxNjYwODY4OTUzfQ.WeSyoitmEElcyADEIh0AVlwnBt7o7jw-HscleDXTDpQ'
 
 describe('User', () => {
   let chaiHttpResponse: Response;
 
-  describe('Login', () => {
+  describe('/login', () => {
     beforeEach(() => {
       sinon.stub(Users, "findOne").resolves(userMock as Users)
       sinon.stub(LoginService, "login").resolves(tokenMock)
@@ -58,4 +67,46 @@ describe('User', () => {
       expect(token).to.equal(tokenMock);
     })
   })
+
+  describe('/login/validate', () => {
+    beforeEach(() => {
+      // sinon.stub(Users, "findOne").resolves(userMock as Users)
+      sinon.stub(LoginService, "getRole").resolves('user')
+    })
+
+    afterEach(() => {
+      sinon.restore();
+    })
+
+    it('should return status 200', async () => {
+
+      chaiHttpResponse = await chai.request(app)
+        .get('/login/validate').auth(tokenMock, tokenMock)
+
+      expect(chaiHttpResponse.status).to.equal(200);
+    })
+
+    it('should return user`s role', async () => {
+
+      chaiHttpResponse = await chai.request(app)
+        .get('/login/validate').auth(tokenMock, tokenMock)
+
+      expect(chaiHttpResponse.body.role).to.equal('user');
+    })
+  })
+
+/*   describe('Error testing', () => {
+    it('Should return 400 if there`s no email', async () => {
+      sinon.stub(Users, "findOne").callsFake(() => {
+        throw new validationError('All fields must be filled')
+      })
+
+      chaiHttpResponse = await chai.request(app)
+        .post('/login')
+        .send(userWithoutEmail)
+
+      expect(chaiHttpResponse.status).to.equal(400)
+      sinon.restore()
+    })
+  }) */
 })
