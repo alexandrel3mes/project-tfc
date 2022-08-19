@@ -7,4 +7,10 @@ export default class TeamsController {
     const result = await TeamService.getAll();
     res.status(StatusCodes.OK).json(result);
   };
+
+  public getById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await TeamService.getById(Number(id));
+    res.status(StatusCodes.OK).json(result);
+  };
 }
