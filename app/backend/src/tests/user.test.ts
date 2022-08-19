@@ -4,6 +4,7 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 import Users from '../database/models/user';
 import IUser from '../interfaces/IUser';
+import LoginService from '../services/login.service';
 import { app } from '../app';
 import { Response } from 'superagent';
 
@@ -19,29 +20,42 @@ const userMock: IUser = {
   password: 'doaksdkasdkaed'
 }
 
-describe('Users', () => {
-  describe('List', () => {
-/*     beforeEach(() => {
-      sinon.stub(Users, "findAll").resolves([userMock as Users]);
-    }) */
+const userPayload = {
+  email: 'email@email.com',
+  password: 'doaksdkasdkaed'
+}
+
+const tokenMock = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicGFzc3dvcmQiOiJzZWNyZXRfYWRtaW4ifSwiaWF0IjoxNjYwODY4OTUzfQ.WeSyoitmEElcyADEIh0AVlwnBt7o7jw-HscleDXTDpQ'
+
+describe('User', () => {
+  let chaiHttpResponse: Response;
+
+  describe('Login', () => {
+    beforeEach(() => {
+      sinon.stub(Users, "findOne").resolves(userMock as Users)
+      sinon.stub(LoginService, "login").resolves(tokenMock)
+    })
 
     afterEach(() => {
       sinon.restore();
     })
 
     it('should return status 200', async () => {
-      const response = await chai.request(app)
-        .get('/users')
 
-      expect(response.status).to.equal(200);
+      chaiHttpResponse = await chai.request(app)
+        .post('/login').send(userPayload)
+
+      expect(chaiHttpResponse.status).to.equal(200);
     })
 
-    it('should return users', async () => {
-      const response = await chai.request(app)
-        .get('/users')
+    it('should return jwt token', async () => {
 
-      const [user] = response.body as IUser[];
+      chaiHttpResponse = await chai.request(app)
+        .post('/login').send(userPayload)
 
+      const token = chaiHttpResponse.body.token
+
+      expect(token).to.equal(tokenMock);
     })
   })
 })
