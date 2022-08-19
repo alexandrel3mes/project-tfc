@@ -5,13 +5,18 @@ import bcrypt = require('bcryptjs');
 import throwCustomError from '../utils/throwCustomError';
 import Users from '../database/models/user';
 
-export type objectPayload = {
+export interface IObjectPayload {
   email: string,
   password: string,
-};
+}
+
+export interface IJWTVerify {
+  data: IObjectPayload,
+  iat: number,
+}
 
 class LoginService {
-  static validateBody(data: unknown): objectPayload {
+  static validateBody(data: unknown): IObjectPayload {
     const schema = Joi.object({
       email: Joi.string().email().required(),
       password: Joi.string().min(6).required(),
@@ -24,7 +29,7 @@ class LoginService {
     return value;
   }
 
-  static async validateUserAndPassword(user: objectPayload): Promise<void> {
+  static async validateUserAndPassword(user: IObjectPayload): Promise<void> {
     const { email, password } = user;
     const returnedUser = await Users.findOne({ where: { email }, raw: true });
     if (returnedUser === null) {
@@ -39,11 +44,23 @@ class LoginService {
     }
   }
 
-  static async login(user: objectPayload): Promise<string> {
+  static async login(user: IObjectPayload): Promise<string> {
     const authBody = LoginService.validateBody(user);
     await LoginService.validateUserAndPassword(authBody);
     const token = jwt.sign({ data: user }, process.env.JWT_SECRET || 'secret');
     return token;
+  }
+
+  static async getRole(token: string): Promise<string> {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as IJWTVerify;
+    if (!decoded) {
+      throwCustomError('unauthorizedError', 'Invalid token');
+    }
+    console.log(decoded);
+    const returnedUser = await Users
+      .findOne({ where: { email: decoded.data.email }, raw: true });
+    if (returnedUser !== null) return returnedUser.role.toString();
+    return throwCustomError('unauthorizedError', 'Invalid token');
   }
 }
 
