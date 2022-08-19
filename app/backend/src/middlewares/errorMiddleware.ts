@@ -15,6 +15,7 @@ const errorMiddleware = (
   _next: NextFunction,
 ) => {
   const status = errors[name];
+  console.log('caiu aqui');
   if (!status) return res.sendStatus(500);
   return res.status(status).json({ message });
 };

@@ -2,6 +2,7 @@ import * as express from 'express';
 import 'express-async-errors';
 import errorMiddleware from './middlewares/errorMiddleware';
 import loginRoute from './routes/loginRoute';
+import teamsRoute from './routes/teamsRoute';
 
 class App {
   public app: express.Express;
@@ -13,6 +14,7 @@ class App {
 
     // Não remover essa rota
     this.app.get('/', (req, res) => res.json({ ok: true }));
+    this.app.use(errorMiddleware);
   }
 
   private config():void {
@@ -27,11 +29,11 @@ class App {
     this.app.use(accessControl);
 
     this.app.use('/login', loginRoute);
+    this.app.use('/teams', teamsRoute);
   }
 
   public start(PORT: string | number):void {
     this.app.listen(PORT, () => console.log(`Running on port ${PORT}`));
-    this.app.use(errorMiddleware);
   }
 }
 

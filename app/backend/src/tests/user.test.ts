@@ -1,5 +1,6 @@
 import * as sinon from 'sinon';
 import * as chai from 'chai';
+import "express-async-errors";
 // @ts-ignore
 import chaiHttp = require('chai-http');
 import Users from '../database/models/user';
@@ -8,6 +9,7 @@ import LoginService from '../services/login.service';
 import { app } from '../app';
 import { Response } from 'superagent';
 import authorize from '../middlewares/authorize'
+import throwCustomError from '../utils/throwCustomError'
 
 chai.use(chaiHttp);
 
@@ -27,7 +29,7 @@ const userPayload = {
 }
 
 const userWithoutEmail = {
-  password: 'doaksdkasdkaed'
+  password: 'secret_admin'
 }
 
 class validationError extends Error {
@@ -96,18 +98,21 @@ describe('User', () => {
     })
   }) */
 
-/*   describe('Error testing', () => {
+describe('Error testing', () => {
     it('Should return 400 if there`s no email', async () => {
-      sinon.stub(Users, "findOne").callsFake(() => {
-        throw new validationError('All fields must be filled')
-      })
-
       chaiHttpResponse = await chai.request(app)
         .post('/login')
         .send(userWithoutEmail)
 
       expect(chaiHttpResponse.status).to.equal(400)
-      sinon.restore()
     })
-  }) */
+
+    it('Should return 401 if email is incorrect', async () => {
+      chaiHttpResponse = await chai.request(app)
+        .post('/login')
+        .send(userPayload)
+
+      expect(chaiHttpResponse.status).to.equal(401)
+    })
+  })
 })

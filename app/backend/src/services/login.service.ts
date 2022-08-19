@@ -25,7 +25,6 @@ class LoginService {
     const { error, value } = schema.validate(data);
 
     if (error) throwCustomError('validationError', 'All fields must be filled');
-
     return value;
   }
 
