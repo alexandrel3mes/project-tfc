@@ -19,7 +19,7 @@ const authorize = (
     req.body.user = decoded;
     return next();
   } catch (e) {
-    return throwCustomError('unauthorizedError', 'Invalid token');
+    return throwCustomError('unauthorizedError', 'Token must be a valid token');
   }
 };
 

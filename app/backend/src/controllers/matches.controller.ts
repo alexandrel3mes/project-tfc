@@ -8,6 +8,11 @@ export default class MatchesController {
     res.status(StatusCodes.OK).json(result);
   };
 
+  public create = async (req: Request, res: Response) => {
+    const match = req.body;
+    const result = await MatchesService.create(match);
+    res.status(StatusCodes.CREATED).json(result);
+  };
 /*   public getById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await TeamService.getById(Number(id));
