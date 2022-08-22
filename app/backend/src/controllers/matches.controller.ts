@@ -13,6 +13,12 @@ export default class MatchesController {
     const result = await MatchesService.create(match);
     res.status(StatusCodes.CREATED).json(result);
   };
+
+  public finish = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    await MatchesService.finish(Number(id));
+    res.status(StatusCodes.OK).json({ message: 'Finished!' });
+  };
 /*   public getById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await TeamService.getById(Number(id));

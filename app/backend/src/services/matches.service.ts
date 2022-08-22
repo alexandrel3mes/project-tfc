@@ -77,6 +77,14 @@ class MatchesService {
     return createdMatch;
   }
 
+  static async finish(id: number): Promise<void> {
+    await Matches.update({ inProgress: false }, {
+      where: {
+        id,
+      },
+    });
+  }
+
 /*   static async getById(id: number): Promise<ITeam | undefined> {
     const team = await Teams.findByPk(id);
     if (team === null) throwCustomError('notFoundError', 'Team does not exist');
