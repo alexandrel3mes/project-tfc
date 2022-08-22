@@ -85,6 +85,14 @@ class MatchesService {
     });
   }
 
+  static async updateGoals(id: number, homeTeamGoals: number, awayTeamGoals: number):Promise<void> {
+    await Matches.update({ homeTeamGoals, awayTeamGoals }, {
+      where: {
+        id,
+      },
+    });
+  }
+
 /*   static async getById(id: number): Promise<ITeam | undefined> {
     const team = await Teams.findByPk(id);
     if (team === null) throwCustomError('notFoundError', 'Team does not exist');
