@@ -19,13 +19,13 @@ export interface gamesReturn {
 }
 
 class LeaderboardService {
-  static calculateGoalsFavor(matchArr: IMatches[]): number {
+  static calculateGoalsHome(matchArr: IMatches[]): number {
     const goalsFavor = matchArr
       .map((match) => match.homeTeamGoals).reduce((prev, curr) => prev + curr, 0);
     return goalsFavor;
   }
 
-  static calculateGoalsOwn(matchArr: IMatches[]): number {
+  static calculateGoalsAway(matchArr: IMatches[]): number {
     const goalsFavor = matchArr
       .map((match) => match.awayTeamGoals).reduce((prev, curr) => prev + curr, 0);
     return goalsFavor;
@@ -55,14 +55,32 @@ class LeaderboardService {
     return (victories * 3) + draws;
   }
 
+  static calculateTotalPointsWhenAway(matchArr: IMatches[]): number {
+    const victories = this.calculateLosses(matchArr);
+    const draws = this.calculateDraws(matchArr);
+    return (victories * 3) + draws;
+  }
+
   static calculateBalance(matchArr: IMatches[]): number {
-    const favor = this.calculateGoalsFavor(matchArr);
-    const own = this.calculateGoalsOwn(matchArr);
+    const favor = this.calculateGoalsHome(matchArr);
+    const own = this.calculateGoalsAway(matchArr);
+    return favor - own;
+  }
+
+  static calculateBalanceWhenAway(matchArr: IMatches[]): number {
+    const favor = this.calculateGoalsAway(matchArr);
+    const own = this.calculateGoalsHome(matchArr);
     return favor - own;
   }
 
   static calculateEfficiency(matchArr: IMatches[]): string {
     const points = this.calculateTotalPoints(matchArr);
+    const eff = ((points / (matchArr.length * 3)) * 100);
+    return eff.toFixed(2);
+  }
+
+  static calculateEfficiencyWhenAway(matchArr: IMatches[]): string {
+    const points = this.calculateTotalPointsWhenAway(matchArr);
     const eff = ((points / (matchArr.length * 3)) * 100);
     return eff.toFixed(2);
   }
@@ -88,10 +106,32 @@ class LeaderboardService {
         totalVictories: LeaderboardService.calculateVictories(allHomeMatches),
         totalDraws: LeaderboardService.calculateDraws(allHomeMatches),
         totalLosses: LeaderboardService.calculateLosses(allHomeMatches),
-        goalsFavor: LeaderboardService.calculateGoalsFavor(allHomeMatches),
-        goalsOwn: LeaderboardService.calculateGoalsOwn(allHomeMatches),
+        goalsFavor: LeaderboardService.calculateGoalsHome(allHomeMatches),
+        goalsOwn: LeaderboardService.calculateGoalsAway(allHomeMatches),
         goalsBalance: LeaderboardService.calculateBalance(allHomeMatches),
         efficiency: LeaderboardService.calculateEfficiency(allHomeMatches),
+      };
+    }));
+
+    return this.sortGamesResult(matchesByTeam);
+  }
+
+  static async getAllAwayGames(): Promise<gamesReturn[]> {
+    const allTeams = await TeamService.getAll();
+    const matchesByTeam = await Promise.all(allTeams.map(async (team) => {
+      const allHomeMatches = await Matches
+        .findAll({ where: { awayTeam: team.id, inProgress: false } });
+      return {
+        name: team.teamName,
+        totalPoints: LeaderboardService.calculateTotalPointsWhenAway(allHomeMatches),
+        totalGames: allHomeMatches.length,
+        totalVictories: LeaderboardService.calculateLosses(allHomeMatches),
+        totalDraws: LeaderboardService.calculateDraws(allHomeMatches),
+        totalLosses: LeaderboardService.calculateVictories(allHomeMatches),
+        goalsFavor: LeaderboardService.calculateGoalsAway(allHomeMatches),
+        goalsOwn: LeaderboardService.calculateGoalsHome(allHomeMatches),
+        goalsBalance: LeaderboardService.calculateBalanceWhenAway(allHomeMatches),
+        efficiency: LeaderboardService.calculateEfficiencyWhenAway(allHomeMatches),
       };
     }));
 
