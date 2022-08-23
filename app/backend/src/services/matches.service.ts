@@ -92,12 +92,6 @@ class MatchesService {
       },
     });
   }
-
-/*   static async getById(id: number): Promise<ITeam | undefined> {
-    const team = await Teams.findByPk(id);
-    if (team === null) throwCustomError('notFoundError', 'Team does not exist');
-    if (team !== null) return team;
-  } */
 }
 
 export default MatchesService;

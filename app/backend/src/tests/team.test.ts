@@ -66,6 +66,7 @@ describe('Team', () => {
       const teams = chaiHttpResponse.body
 
       expect(teams).deep.equal(teamsMock);
+      sinon.restore();
     })
   })
 
@@ -94,6 +95,7 @@ describe('Team', () => {
       const team = chaiHttpResponse.body
 
       expect(team).deep.equal(teamMock);
+      sinon.restore();
     })
   })
 
