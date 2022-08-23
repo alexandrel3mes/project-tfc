@@ -127,7 +127,7 @@ describe('Matches', () => {
       expect(chaiHttpResponse.status).to.equal(200);
     })
 
-    it('should return finiish message', async () => {
+    it('should return finish message', async () => {
 
       chaiHttpResponse = await chai.request(app)
         .patch('/matches/3/finish')
@@ -155,7 +155,7 @@ describe('Matches', () => {
       expect(chaiHttpResponse.status).to.equal(200);
     })
 
-    it('should return finiish message', async () => {
+    it('should return goals updated message', async () => {
 
       chaiHttpResponse = await chai.request(app)
         .patch('/matches/3').send(updateGoalsPayload)

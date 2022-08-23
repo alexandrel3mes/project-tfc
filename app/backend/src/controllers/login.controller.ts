@@ -12,8 +12,6 @@ export default class LoginController {
 
   public getRole = async (req: Request, res: Response) => {
     const { user } = req.body;
-    console.log(user);
-
     const result = await LoginService.getRole(user);
     res.status(StatusCodes.OK).json({ role: result });
   };
