@@ -10,6 +10,7 @@ import { app } from '../app';
 import { Response } from 'superagent';
 import authorize from '../middlewares/authorize'
 import throwCustomError from '../utils/throwCustomError'
+import * as bcrypt from 'bcryptjs'
 
 chai.use(chaiHttp);
 
@@ -74,7 +75,7 @@ describe('User', () => {
 /*   describe('/login/validate', () => {
     beforeEach(() => {
       sinon.stub(Users, "findOne").resolves(userMock as Users)
-      sinon.stub(LoginService, "getRole").resolves('user')
+      sinon.stub(authorize).resolves()
     })
 
     afterEach(() => {
@@ -84,7 +85,7 @@ describe('User', () => {
     it('should return status 200', async () => {
 
       chaiHttpResponse = await chai.request(app)
-        .get('/login/validate')
+        .get('/login/validate').auth(tokenMock, tokenMock)
 
       expect(chaiHttpResponse.status).to.equal(200);
     })
@@ -92,13 +93,15 @@ describe('User', () => {
     it('should return user`s role', async () => {
 
       chaiHttpResponse = await chai.request(app)
-        .get('/login/validate')
+        .get('/login/validate').auth(tokenMock, tokenMock)
 
-      expect(chaiHttpResponse.body.role).to.equal('user');
+      console.log(chaiHttpResponse.body)
+
+      expect(chaiHttpResponse.body.role).to.equal(userMock.role);
     })
   }) */
 
-describe('Error testing', () => {
+describe('/login error testing', () => {
     it('Should return 400 if there`s no email', async () => {
       chaiHttpResponse = await chai.request(app)
         .post('/login')
@@ -113,6 +116,16 @@ describe('Error testing', () => {
         .send(userPayload)
 
       expect(chaiHttpResponse.status).to.equal(401)
+    })
+
+    it('Should return 401 if password is incorrect', async () => {
+      sinon.stub(bcrypt, "compareSync").resolves(null)
+      chaiHttpResponse = await chai.request(app)
+        .post('/login')
+        .send(userPayload)
+
+      expect(chaiHttpResponse.status).to.equal(401)
+      sinon.restore()
     })
   })
 })
