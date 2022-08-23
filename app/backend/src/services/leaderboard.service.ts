@@ -18,6 +18,11 @@ export interface gamesReturn {
   efficiency: string,
 }
 
+interface remap {
+  name: string,
+  goalsFavor: number,
+}
+
 class LeaderboardService {
   static calculateGoalsHome(matchArr: IMatches[]): number {
     const goalsFavor = matchArr
@@ -138,25 +143,19 @@ class LeaderboardService {
     return this.sortGamesResult(matchesByTeam);
   }
 
-  static async getAllGamesOverAll(): Promise<gamesReturn[]> {
-    const homeGames = await this.getAllHomeGames();
-    const awayGames = await this.getAllAwayGames();
-    const allGames = [...homeGames, ...awayGames];
-    /* const remappedGames = allGames.map((game) => {
+  static async getAllGamesOverAll(): Promise<remap[]> {
+    const allTeams = await TeamService.getAll();
+    /* const allMatches = await Matches.findAll({ where: { inProgress: false } });
+    const matchesByTeam = allTeams.map((team) => allMatches
+      .filter((match) => match.awayTeam === team.id || match.homeTeam === team.id)); */
+    const remap = allTeams.map((team) => {
       const obj = {
-        name: game.name,
-        totalPoints: LeaderboardService.calculateTotalPointsWhenAway(allAwayMatches),
-        totalGames: allAwayMatches.length,
-        totalVictories: LeaderboardService.calculateAwayVictories(allAwayMatches),
-        totalDraws: LeaderboardService.calculateDraws(allAwayMatches),
-        totalLosses: LeaderboardService.calculateHomeVictories(allAwayMatches),
-        goalsFavor: LeaderboardService.calculateGoalsAway(allAwayMatches),
-        goalsOwn: LeaderboardService.calculateGoalsHome(allAwayMatches),
-        goalsBalance: LeaderboardService.calculateBalanceWhenAway(allAwayMatches),
-        efficiency: LeaderboardService.calculateEfficiencyWhenAway(allAwayMatches) };
+        name: team.teamName,
+        goalsFavor: 0,
+      };
       return obj;
-    }); */
-    return allGames;
+    });
+    return remap as remap[];
   }
 
 /*   static async getAllGamesOverall(): Promise<gamesReturn[]> {
