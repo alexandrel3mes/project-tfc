@@ -31,13 +31,13 @@ class LeaderboardService {
     return goalsFavor;
   }
 
-  static calculateVictories(matchArr: IMatches[]): number {
+  static calculateHomeVictories(matchArr: IMatches[]): number {
     const totalVictories = matchArr
       .filter((match) => match.homeTeamGoals > match.awayTeamGoals).length;
     return totalVictories;
   }
 
-  static calculateLosses(matchArr: IMatches[]): number {
+  static calculateAwayVictories(matchArr: IMatches[]): number {
     const totalLosses = matchArr
       .filter((match) => match.homeTeamGoals < match.awayTeamGoals).length;
     return totalLosses;
@@ -50,13 +50,13 @@ class LeaderboardService {
   }
 
   static calculateTotalPoints(matchArr: IMatches[]): number {
-    const victories = this.calculateVictories(matchArr);
+    const victories = this.calculateHomeVictories(matchArr);
     const draws = this.calculateDraws(matchArr);
     return (victories * 3) + draws;
   }
 
   static calculateTotalPointsWhenAway(matchArr: IMatches[]): number {
-    const victories = this.calculateLosses(matchArr);
+    const victories = this.calculateAwayVictories(matchArr);
     const draws = this.calculateDraws(matchArr);
     return (victories * 3) + draws;
   }
@@ -103,9 +103,9 @@ class LeaderboardService {
         name: team.teamName,
         totalPoints: LeaderboardService.calculateTotalPoints(allHomeMatches),
         totalGames: allHomeMatches.length,
-        totalVictories: LeaderboardService.calculateVictories(allHomeMatches),
+        totalVictories: LeaderboardService.calculateHomeVictories(allHomeMatches),
         totalDraws: LeaderboardService.calculateDraws(allHomeMatches),
-        totalLosses: LeaderboardService.calculateLosses(allHomeMatches),
+        totalLosses: LeaderboardService.calculateAwayVictories(allHomeMatches),
         goalsFavor: LeaderboardService.calculateGoalsHome(allHomeMatches),
         goalsOwn: LeaderboardService.calculateGoalsAway(allHomeMatches),
         goalsBalance: LeaderboardService.calculateBalance(allHomeMatches),
@@ -119,19 +119,19 @@ class LeaderboardService {
   static async getAllAwayGames(): Promise<gamesReturn[]> {
     const allTeams = await TeamService.getAll();
     const matchesByTeam = await Promise.all(allTeams.map(async (team) => {
-      const allHomeMatches = await Matches
+      const allAwayMatches = await Matches
         .findAll({ where: { awayTeam: team.id, inProgress: false } });
       return {
         name: team.teamName,
-        totalPoints: LeaderboardService.calculateTotalPointsWhenAway(allHomeMatches),
-        totalGames: allHomeMatches.length,
-        totalVictories: LeaderboardService.calculateLosses(allHomeMatches),
-        totalDraws: LeaderboardService.calculateDraws(allHomeMatches),
-        totalLosses: LeaderboardService.calculateVictories(allHomeMatches),
-        goalsFavor: LeaderboardService.calculateGoalsAway(allHomeMatches),
-        goalsOwn: LeaderboardService.calculateGoalsHome(allHomeMatches),
-        goalsBalance: LeaderboardService.calculateBalanceWhenAway(allHomeMatches),
-        efficiency: LeaderboardService.calculateEfficiencyWhenAway(allHomeMatches),
+        totalPoints: LeaderboardService.calculateTotalPointsWhenAway(allAwayMatches),
+        totalGames: allAwayMatches.length,
+        totalVictories: LeaderboardService.calculateAwayVictories(allAwayMatches),
+        totalDraws: LeaderboardService.calculateDraws(allAwayMatches),
+        totalLosses: LeaderboardService.calculateHomeVictories(allAwayMatches),
+        goalsFavor: LeaderboardService.calculateGoalsAway(allAwayMatches),
+        goalsOwn: LeaderboardService.calculateGoalsHome(allAwayMatches),
+        goalsBalance: LeaderboardService.calculateBalanceWhenAway(allAwayMatches),
+        efficiency: LeaderboardService.calculateEfficiencyWhenAway(allAwayMatches),
       };
     }));
 
