@@ -62,9 +62,18 @@ class LeaderboardService {
   }
 
   static calculateEfficiency(matchArr: IMatches[]): string {
-    const victories = this.calculateVictories(matchArr);
-    const eff = (victories * 100) / matchArr.length;
+    const points = this.calculateTotalPoints(matchArr);
+    const eff = ((points / (matchArr.length * 3)) * 100);
     return eff.toFixed(2);
+  }
+
+  static sortGamesResult(gamesArr: gamesReturn[]): gamesReturn[] {
+    return gamesArr
+      .sort((a, b) => b.totalPoints - a.totalPoints
+      || b.totalVictories - a.totalVictories
+      || b.goalsBalance - a.goalsBalance
+      || b.goalsFavor - a.goalsFavor
+      || a.goalsOwn - b.goalsOwn);
   }
 
   static async getAllHomeGames(): Promise<gamesReturn[]> {
@@ -86,7 +95,7 @@ class LeaderboardService {
       };
     }));
 
-    return matchesByTeam.sort((a, b) => b.totalPoints - a.totalPoints);
+    return this.sortGamesResult(matchesByTeam);
   }
 }
 
