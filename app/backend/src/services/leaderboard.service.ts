@@ -137,6 +137,49 @@ class LeaderboardService {
 
     return this.sortGamesResult(matchesByTeam);
   }
+
+  static async getAllGamesOverAll(): Promise<gamesReturn[]> {
+    const homeGames = await this.getAllHomeGames();
+    const awayGames = await this.getAllAwayGames();
+    const allGames = [...homeGames, ...awayGames];
+    /* const remappedGames = allGames.map((game) => {
+      const obj = {
+        name: game.name,
+        totalPoints: LeaderboardService.calculateTotalPointsWhenAway(allAwayMatches),
+        totalGames: allAwayMatches.length,
+        totalVictories: LeaderboardService.calculateAwayVictories(allAwayMatches),
+        totalDraws: LeaderboardService.calculateDraws(allAwayMatches),
+        totalLosses: LeaderboardService.calculateHomeVictories(allAwayMatches),
+        goalsFavor: LeaderboardService.calculateGoalsAway(allAwayMatches),
+        goalsOwn: LeaderboardService.calculateGoalsHome(allAwayMatches),
+        goalsBalance: LeaderboardService.calculateBalanceWhenAway(allAwayMatches),
+        efficiency: LeaderboardService.calculateEfficiencyWhenAway(allAwayMatches) };
+      return obj;
+    }); */
+    return allGames;
+  }
+
+/*   static async getAllGamesOverall(): Promise<gamesReturn[]> {
+    const allTeams = await TeamService.getAll();
+    const matchesByTeam = await Promise.all(allTeams.map(async (team) => {
+      const allAwayMatches = await Matches
+        .findAll({ where: { awayTeam: team.id, inProgress: false } });
+      return {
+        name: team.teamName,
+        totalPoints: LeaderboardService.calculateTotalPointsWhenAway(allAwayMatches),
+        totalGames: allAwayMatches.length,
+        totalVictories: LeaderboardService.calculateAwayVictories(allAwayMatches),
+        totalDraws: LeaderboardService.calculateDraws(allAwayMatches),
+        totalLosses: LeaderboardService.calculateHomeVictories(allAwayMatches),
+        goalsFavor: LeaderboardService.calculateGoalsAway(allAwayMatches),
+        goalsOwn: LeaderboardService.calculateGoalsHome(allAwayMatches),
+        goalsBalance: LeaderboardService.calculateBalanceWhenAway(allAwayMatches),
+        efficiency: LeaderboardService.calculateEfficiencyWhenAway(allAwayMatches),
+      };
+    }));
+
+    return this.sortGamesResult(matchesByTeam);
+  } */
 }
 
 export default LeaderboardService;
