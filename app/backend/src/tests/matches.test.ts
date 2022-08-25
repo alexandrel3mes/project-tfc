@@ -9,10 +9,21 @@ import { app } from '../app';
 import { Response } from 'superagent';
 import throwCustomError from '../utils/throwCustomError'
 import * as bcrypt from 'bcryptjs'
+import authorize from '../middlewares/authorize';
+import { NextFunction } from 'express';
 
 chai.use(chaiHttp);
 
 const { expect } = chai;
+
+const matchMock: IMatches = {
+  id: 1,
+  homeTeam: 16,
+  homeTeamGoals: 1,
+  awayTeam: 8,
+  awayTeamGoals: 1,
+  inProgress: false,
+}
 
 const matchesMock: IMatches[] = [
     {
@@ -78,6 +89,15 @@ const updateGoalsPayload = {
   awayTeamGoals: 1
 }
 
+const createMatchesPayload = {
+  homeTeam: 16,
+  awayTeam: 8,
+  homeTeamGoals: 2,
+  awayTeamGoals: 2
+}
+
+const tokenMock = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicGFzc3dvcmQiOiJzZWNyZXRfYWRtaW4ifSwiaWF0IjoxNjYwOTQ0NDkyfQ.Jii8gBwyjMqJ1U-SVoNUIxF4Lati9Eh62vzp58NckPIeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicGFzc3dvcmQiOiJzZWNyZXRfYWRtaW4ifSwiaWF0IjoxNjYwOTQ0NDkyfQ.Jii8gBwyjMqJ1U-SVoNUIxF4Lati9Eh62vzp58NckPI';
+
 
 describe('Matches', () => {
   let chaiHttpResponse: Response;
@@ -85,6 +105,7 @@ describe('Matches', () => {
   describe('/matches', () => {
     beforeEach(() => {
       sinon.stub(Matches, "findAll").resolves(matchesMock as Matches[])
+      sinon.stub(Matches, "create").resolves(matchMock as Matches)
     })
 
     afterEach(() => {
@@ -108,6 +129,25 @@ describe('Matches', () => {
 
       expect(matches).deep.equal(matchesMock);
     })
+
+/*     describe('create', () => {
+      it('should return status 201', async () => {
+        const login = await chai.request(app)
+        .post('/login')
+        .send({
+          email: 'user@user.com',
+          password: 'secret_user',
+        })
+
+        const tokenMock  = login.body.token
+
+        chaiHttpResponse = await chai.request(app)
+          .post('/matches').auth(tokenMock, { type: 'bearer' }).send(createMatchesPayload)
+
+        console.log(login.body.token)
+        expect(chaiHttpResponse.status).to.equal(201);
+      })
+    }) */
   })
 
   describe('/matches:id/finish', () => {
