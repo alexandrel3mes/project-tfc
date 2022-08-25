@@ -11,6 +11,7 @@ export interface IMatches {
   homeTeamGoals: number,
   awayTeam: number,
   awayTeamGoals: number,
+  inProgress?: boolean,
   teamHome?: ITeam,
   teamAway?: ITeam,
 }
@@ -23,9 +24,8 @@ export interface IMatchesCreatePayload {
 }
 
 class MatchesService {
-  static async getAll(): Promise<IMatches[]> {
-    const matches = await Matches.findAll();
-    const returnedMatches = Promise.all(matches.map(async (match) => {
+  static async returnMatches(matchesArray: IMatches[]): Promise<IMatches[]> {
+    const returnedMatches = Promise.all(matchesArray.map(async (match) => {
       const { id, homeTeam, homeTeamGoals, awayTeam, awayTeamGoals, inProgress } = match;
       const teamNames = await this.getTeamsName(homeTeam, awayTeam);
       if (teamNames) {
@@ -41,6 +41,23 @@ class MatchesService {
         };
       }
     }));
+    return returnedMatches as Promise<IMatches[]>;
+  }
+
+  static async getAll(): Promise<IMatches[]> {
+    const matches = await Matches.findAll();
+    const returnedMatches = this.returnMatches(matches);
+    return returnedMatches as Promise<IMatches[]>;
+  }
+
+  static async getAllInProgressOrNot(inProgressIs: string): Promise<IMatches[]> {
+    if (inProgressIs === 'true') {
+      const matches = await Matches.findAll({ where: { inProgress: true } });
+      const returnedMatches = this.returnMatches(matches);
+      return returnedMatches as Promise<IMatches[]>;
+    }
+    const matches = await Matches.findAll({ where: { inProgress: false } });
+    const returnedMatches = this.returnMatches(matches);
     return returnedMatches as Promise<IMatches[]>;
   }
 

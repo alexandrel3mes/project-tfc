@@ -18,11 +18,6 @@ export interface gamesReturn {
   efficiency: string,
 }
 
-interface remap {
-  name: string,
-  goalsFavor: number,
-}
-
 class LeaderboardService {
   static calculateGoalsHome(matchArr: IMatches[]): number {
     const goalsFavor = matchArr
@@ -81,6 +76,11 @@ class LeaderboardService {
   static calculateEfficiency(matchArr: IMatches[]): string {
     const points = this.calculateTotalPoints(matchArr);
     const eff = ((points / (matchArr.length * 3)) * 100);
+    return eff.toFixed(2);
+  }
+
+  static calculateEfficiencyOverAll(points: number, matches: number): string {
+    const eff = ((points / (matches * 3)) * 100);
     return eff.toFixed(2);
   }
 
@@ -143,42 +143,52 @@ class LeaderboardService {
     return this.sortGamesResult(matchesByTeam);
   }
 
-  static async getAllGamesOverAll(): Promise<remap[]> {
-    const allTeams = await TeamService.getAll();
-    /* const allMatches = await Matches.findAll({ where: { inProgress: false } });
-    const matchesByTeam = allTeams.map((team) => allMatches
-      .filter((match) => match.awayTeam === team.id || match.homeTeam === team.id)); */
-    const remap = allTeams.map((team) => {
+  static remap(homeArr: gamesReturn[], awayArr: gamesReturn[]): gamesReturn[] {
+    const remaped = homeArr.map((game) => {
+      const filtered = awayArr.filter((match) => match.name === game.name);
       const obj = {
-        name: team.teamName,
-        goalsFavor: 0,
+        name: game.name,
+        totalPoints: game.totalPoints + filtered[0].totalPoints,
+        totalGames: game.totalGames + filtered[0].totalGames,
+        totalVictories: game.totalVictories + filtered[0].totalVictories,
+        totalDraws: game.totalDraws + filtered[0].totalDraws,
+        totalLosses: game.totalLosses + filtered[0].totalLosses,
+        goalsFavor: game.goalsFavor + filtered[0].goalsFavor,
+        goalsOwn: game.goalsOwn + filtered[0].goalsOwn,
+        goalsBalance: game.goalsBalance + filtered[0].goalsBalance,
+        efficiency: game.totalGames + filtered[0].efficiency,
       };
       return obj;
     });
-    return remap as remap[];
+    return remaped as gamesReturn[];
   }
 
-/*   static async getAllGamesOverall(): Promise<gamesReturn[]> {
-    const allTeams = await TeamService.getAll();
-    const matchesByTeam = await Promise.all(allTeams.map(async (team) => {
-      const allAwayMatches = await Matches
-        .findAll({ where: { awayTeam: team.id, inProgress: false } });
-      return {
-        name: team.teamName,
-        totalPoints: LeaderboardService.calculateTotalPointsWhenAway(allAwayMatches),
-        totalGames: allAwayMatches.length,
-        totalVictories: LeaderboardService.calculateAwayVictories(allAwayMatches),
-        totalDraws: LeaderboardService.calculateDraws(allAwayMatches),
-        totalLosses: LeaderboardService.calculateHomeVictories(allAwayMatches),
-        goalsFavor: LeaderboardService.calculateGoalsAway(allAwayMatches),
-        goalsOwn: LeaderboardService.calculateGoalsHome(allAwayMatches),
-        goalsBalance: LeaderboardService.calculateBalanceWhenAway(allAwayMatches),
-        efficiency: LeaderboardService.calculateEfficiencyWhenAway(allAwayMatches),
+  static redoEfficienty(gamesArr: gamesReturn[]): gamesReturn[] {
+    const remapped = gamesArr.map((game) => {
+      const obj = {
+        name: game.name,
+        totalPoints: game.totalPoints,
+        totalGames: game.totalGames,
+        totalVictories: game.totalVictories,
+        totalDraws: game.totalDraws,
+        totalLosses: game.totalLosses,
+        goalsFavor: game.goalsFavor,
+        goalsOwn: game.goalsOwn,
+        goalsBalance: game.goalsBalance,
+        efficiency: this.calculateEfficiencyOverAll(game.totalPoints, game.totalGames),
       };
-    }));
+      return obj;
+    });
+    return remapped as gamesReturn[];
+  }
 
-    return this.sortGamesResult(matchesByTeam);
-  } */
+  static async getAllGamesOverAll(): Promise<gamesReturn[]> {
+    const allHomeGames = await this.getAllHomeGames();
+    const allAwayGames = await this.getAllAwayGames();
+    const remapped = this.remap(allHomeGames, allAwayGames);
+    const effRedo = this.redoEfficienty(remapped);
+    return this.sortGamesResult(effRedo);
+  }
 }
 
 export default LeaderboardService;

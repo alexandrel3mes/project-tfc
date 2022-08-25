@@ -3,9 +3,16 @@ import { StatusCodes } from 'http-status-codes';
 import MatchesService from '../services/matches.service';
 
 export default class MatchesController {
-  public getAll = async (_req: Request, res: Response) => {
-    const result = await MatchesService.getAll();
-    res.status(StatusCodes.OK).json(result);
+  public getAll = async (req: Request, res: Response) => {
+    const { inProgress } = req.query;
+    if (inProgress === undefined) {
+      const result = await MatchesService.getAll();
+      res.status(StatusCodes.OK).json(result);
+    }
+    if (inProgress !== undefined) {
+      const result = await MatchesService.getAllInProgressOrNot(inProgress.toString());
+      res.status(StatusCodes.OK).json(result);
+    }
   };
 
   public create = async (req: Request, res: Response) => {
