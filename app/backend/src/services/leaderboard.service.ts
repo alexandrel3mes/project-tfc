@@ -1,7 +1,5 @@
 import 'dotenv';
 import TeamService from './teams.service';
-// import MatchesService from './matches.service';
-// import throwCustomError from '../utils/throwCustomError';
 import Matches from '../database/models/matches';
 import { IMatches } from './matches.service';
 
