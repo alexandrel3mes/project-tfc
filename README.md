@@ -8,7 +8,7 @@ Este projeto foi desenvolvido por mim durante o bloco 28 no curso de Desenvolvim
 <summary>Consiste em uma aplicação <strong>full stack</strong>, em que me foi entregue o front end e eu construí:</summary> <br>
 
 📊 **Banco de dados:**
-  - Relacional, construído através do SequelieORM com migrations, models e seeders para cada entidade;
+  - Relacional, construído através do SequelizeORM com migrations, models e seeders para cada entidade;
 
 🔙 **Back-end:**
  - Construído seguindo modelo REST, tentando ao mámixo respeitar os preceitos de SOLID, sendo feito 100% em Typescript;
