@@ -1,10 +1,10 @@
-# Boas vindas ao repositório do Trybe Futebol Clube!
+# Boas vindas ao repositório do Trybe Futebol Clube! ⚽
 Este projeto foi desenvolvido por mim durante o bloco 28 no curso de Desenvolvimento Web Fullstack na Trybe.<br>
 
 
-# Sobre o projeto
+# Sobre o projeto 🔍
 
-<details>
+<details> 
 <summary>Consiste em uma aplicação <strong>full stack</strong>, em que me foi entregue o front end e eu construí:</summary> <br>
 
 📊 **Banco de dados:**
@@ -22,8 +22,8 @@ Este projeto foi desenvolvido por mim durante o bloco 28 no curso de Desenvolvim
  </details>
  
  
- # Orientações
- ## Como rodar o projeto?
+ # Orientações 🗺️
+ ## Como rodar o projeto? 🙋
  <details>
  <summary>Requisitos mínimos</summary>
  Na sua máquina você deve ter:
